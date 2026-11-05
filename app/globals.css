@@ -1,41 +1,189 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@source not "../data";
-@source not "../db";
-
-@theme {
-  --color-ink: #1c2433;
-  --color-ink-soft: #4b5567;
-  --color-paper: #f7f5f0;
-  --color-card: #ffffff;
-  --color-line: #e4e0d6;
-  --color-brand: #7a2e3a;
-  --color-brand-soft: #f3e7e9;
-  --color-ok: #15803d;
-  --color-danger: #b91c1c;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-source-serif), ui-serif, Georgia, serif;
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 207 80% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 207 80% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 207 80% 14%;
+    --primary: 207 80% 14%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 35 17% 88%;
+    --secondary-foreground: 207 80% 14%;
+    --muted: 35 17% 88%;
+    --muted-foreground: 207 30% 46%;
+    --accent: 35 17% 88%;
+    --accent-foreground: 207 80% 14%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 35 17% 85%;
+    --input: 35 17% 85%;
+    --ring: 207 80% 14%;
+    --radius: 0.5rem;
+  }
 }
 
-body {
-  background: var(--color-paper);
-  color: var(--color-ink);
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* Updated to use Montserrat - geometric sans-serif matching brand */
+    font-family: var(--font-montserrat), system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+
+  /* Hide scrollbar on mobile devices */
+  @media (max-width: 768px) {
+    body::-webkit-scrollbar {
+      display: none;
+    }
+    body {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  }
+
+  /* Jerarquía tipográfica */
+  h1,
+  h2,
+  h3 {
+    /* Titles use Montserrat with normal weight and match subtitle color */
+    font-family: var(--font-montserrat), system-ui, sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+
+  h4,
+  h5,
+  h6 {
+    /* Smaller headings use Geist Mono */
+    font-family: var(--font-geist-mono), monospace;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  p {
+    /* Paragraphs use Montserrat */
+    font-family: var(--font-montserrat), system-ui, sans-serif;
+    line-height: 1.7;
+  }
+
+  /* Brand text para logo */
+  .brand-text {
+    /* Logo uses Montserrat Bold */
+    font-family: var(--font-montserrat), system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
 }
 
 @layer components {
-  .input {
-    @apply w-full rounded-md border border-line bg-white px-3 py-2 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20;
+  /* Estilos para botones usando valores directos */
+  .btn-primary {
+    background-color: #eb654d;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    /* Updated to Geist Mono */
+    font-family: var(--font-geist-mono), monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
   }
-  .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-md bg-brand px-3.5 py-2 text-sm font-medium text-white hover:bg-brand/90 disabled:opacity-50;
+
+  /* Added color inversion on hover matching btn-secondary behavior */
+  .btn-primary:hover {
+    background-color: transparent;
+    border: 2px solid #eb654d;
+    color: #eb654d;
   }
-  .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-md border border-line bg-white px-3.5 py-2 text-sm font-medium text-ink hover:bg-paper disabled:opacity-50;
+
+  .btn-secondary {
+    background-color: transparent;
+    border: 2px solid #eb654d;
+    color: #eb654d;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    /* Updated to Geist Mono */
+    font-family: var(--font-geist-mono), monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
   }
-  .card {
-    @apply rounded-lg border border-line bg-card;
+
+  .btn-secondary:hover {
+    background-color: #eb654d;
+    color: white;
   }
-  .label {
-    @apply mb-1 block text-xs font-medium uppercase tracking-wide text-ink-soft;
+
+  /* Card hover effect */
+  .practice-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .practice-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(14, 37, 55, 0.12);
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Diagonal Cut Effect */
+.hero-section {
+  position: relative;
+}
+
+.hero-section::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 120px;
+  background: white;
+  clip-path: polygon(0 30%, 50% 100%, 100% 30%, 100% 100%, 0 100%);
+  z-index: 25;
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .hero-section::after {
+    height: 80px;
+    clip-path: polygon(0 40%, 50% 100%, 100% 40%, 100% 100%, 0 100%);
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section::after {
+    height: 60px;
+    clip-path: polygon(0 50%, 50% 100%, 100% 50%, 100% 100%, 0 100%);
   }
 }
