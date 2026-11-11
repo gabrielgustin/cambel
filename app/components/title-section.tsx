@@ -63,8 +63,8 @@ export default function TitleSection() {
         
         <div data-reveal-stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 max-w-7xl mx-auto">
           {lawyers.map((lawyer) => (
-            <Card data-reveal key={lawyer.id} className="overflow-hidden bg-white/50 border border-cambel-warm/50 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group">
-              <CardContent className="p-4 lg:p-5 h-full flex flex-col">
+            <Card data-reveal key={lawyer.id} className="overflow-hidden bg-cambel-deep border border-cambel-deep rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <CardContent className="p-4 lg:p-5 h-full flex flex-col bg-transparent">
                 <div data-reveal="diagonal" className="relative w-full aspect-[3/4] rounded-lg overflow-hidden mb-5">
                   <Image
                     src={lawyer.image || "/placeholder.svg"}
@@ -75,7 +75,7 @@ export default function TitleSection() {
                   />
                 </div>
                 <div className="flex flex-col items-start flex-grow">
-                  <h3 className="text-xl lg:text-2xl font-sans font-semibold text-cambel-deep mb-1">
+                  <h3 className="text-xl lg:text-2xl font-sans font-semibold text-cambel-warm mb-1">
                     {lawyer.name}
                   </h3>
                   <span
@@ -92,7 +92,7 @@ export default function TitleSection() {
                         href={lawyer.linkedin}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="bg-cambel-deep hover:bg-cambel-salmon transition-colors duration-300 rounded-full p-2.5"
+                        className="bg-white/10 hover:bg-cambel-salmon transition-colors duration-300 rounded-full p-2.5"
                       >
                         <Linkedin className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
                       </a>
@@ -105,7 +105,7 @@ export default function TitleSection() {
                       href={`https://wa.me/${lawyer.whatsapp.replace(/[\s\-‑]/g, "")}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="bg-cambel-deep hover:bg-cambel-salmon transition-colors duration-300 rounded-full p-2.5"
+                      className="bg-white/10 hover:bg-cambel-salmon transition-colors duration-300 rounded-full p-2.5"
                     >
                       <Phone className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
                     </a>
