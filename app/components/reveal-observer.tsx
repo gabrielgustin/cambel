@@ -13,8 +13,11 @@ export default function RevealObserver() {
       (entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue
-          entry.target.classList.add("is-revealed")
-          io.unobserve(entry.target)
+          const el = entry.target as HTMLElement
+          el.classList.add("is-revealed")
+          io.unobserve(el)
+          // Drop the stagger delay once revealed, so later hover transitions respond immediately.
+          setTimeout(() => el.style.removeProperty("--reveal-delay"), 2500)
         }
       },
       { rootMargin: "0px 0px -8% 0px", threshold: 0.12 },

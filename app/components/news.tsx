@@ -1,317 +1,250 @@
 "use client"
-import { Card, CardContent } from "@/components/ui/card"
+
 import type React from "react"
-
 import Image from "next/image"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
-
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useNews } from "@/app/context/news-context"
 
-const SLIDE_MS = 800
+const SLIDE_MS = 900
 const AUTO_MS = 6000
+const SWIPE_PX = 50
 
-const News = () => {
+// Coverflow layout by distance from the active card (x in card widths). Side cards tilt so their inner edge recedes.
+const LAYOUT = [
+  { x: 0, scale: 1, rotate: 0 },
+  { x: 0.95, scale: 0.78, rotate: 12 },
+  { x: 1.62, scale: 0.7, rotate: 18 },
+]
+const HIDDEN = { x: 2.4, scale: 0.6, rotate: 22 }
+
+/** Signed circular distance from the active slide, e.g. -1 = just left of it. */
+const distance = (index: number, current: number, total: number) => {
+  let d = (((index - current) % total) + total) % total
+  if (d > total / 2) d -= total
+  return d
+}
+
+function DoubleArrow({ direction }: { direction: "left" | "right" }) {
+  return (
+    <svg viewBox="0 0 24 16" className={`h-4 w-6 ${direction === "left" ? "rotate-180" : ""}`} aria-hidden="true">
+      <path d="M0 0 L10 8 L0 16 Z M12 0 L22 8 L12 16 Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+export default function News() {
   const router = useRouter()
-  const { news: allArticles } = useNews()
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const [isTransitioning, setIsTransitioning] = useState(false)
-  const [touchStartX, setTouchStartX] = useState(0)
-  const [touchEndX, setTouchEndX] = useState(0)
-  const [windowWidth, setWindowWidth] = useState(768)
-  const [isDragging, setIsDragging] = useState(false)
-  const [startX, setStartX] = useState(0)
-  const [scrollLeft, setScrollLeft] = useState(0)
-  const autoSlideTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const carouselRef = useRef<HTMLDivElement>(null)
+  const { news: articles } = useNews()
+  const total = articles.length
+  const [current, setCurrent] = useState(0)
+  const [width, setWidth] = useState(0)
+  const stageRef = useRef<HTMLDivElement>(null)
+  const previousRef = useRef(0)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const dragRef = useRef<{ x: number; moved: boolean } | null>(null)
 
-  const totalSlides = allArticles.length
+  const go = useCallback((delta: number) => setCurrent((c) => (((c + delta) % total) + total) % total), [total])
 
-  const nextSlide = useCallback(() => {
-    if (isTransitioning) return
-    setIsTransitioning(true)
-    setCurrentSlide((prev) => (prev + 1) % totalSlides)
-  }, [isTransitioning, totalSlides])
-
-  const prevSlide = useCallback(() => {
-    if (isTransitioning) return
-    setIsTransitioning(true)
-    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
-  }, [isTransitioning, totalSlides])
-
-  // Reset transition state after animation
-  useEffect(() => {
-    if (isTransitioning) {
-      const timer = setTimeout(() => {
-        setIsTransitioning(false)
-      }, SLIDE_MS)
-      return () => clearTimeout(timer)
-    }
-  }, [isTransitioning])
-
-  // Auto-slide effect
-  useEffect(() => {
-    const startAutoSlide = () => {
-      if (autoSlideTimerRef.current) {
-        clearInterval(autoSlideTimerRef.current)
-      }
-      autoSlideTimerRef.current = setInterval(nextSlide, AUTO_MS)
-    }
-
-    if (totalSlides > 0 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      startAutoSlide()
-    }
-
-    return () => {
-      if (autoSlideTimerRef.current) {
-        clearInterval(autoSlideTimerRef.current)
-      }
-    }
-  }, [nextSlide, totalSlides])
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (typeof window !== "undefined") {
-        setWindowWidth(window.innerWidth)
-      }
-    }
-
-    if (typeof window !== "undefined") {
-      setWindowWidth(window.innerWidth)
-      window.addEventListener("resize", handleResize)
-    }
-
-    return () => {
-      if (typeof window !== "undefined") {
-        window.removeEventListener("resize", handleResize)
-      }
-    }
+  const stopAuto = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current)
+    timerRef.current = null
   }, [])
+  const startAuto = useCallback(() => {
+    stopAuto()
+    if (total < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    timerRef.current = setInterval(() => go(1), AUTO_MS)
+  }, [go, stopAuto, total])
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (autoSlideTimerRef.current) {
-      clearInterval(autoSlideTimerRef.current)
-    }
-    setTouchStartX(e.touches[0].clientX)
-  }
+  useEffect(() => {
+    startAuto()
+    return stopAuto
+  }, [startAuto, stopAuto])
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEndX(e.touches[0].clientX)
-  }
+  useLayoutEffect(() => {
+    const el = stageRef.current
+    if (!el) return
+    const ro = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [total])
 
-  const handleTouchEnd = () => {
-    const swipeDistance = touchStartX - touchEndX
-    const minSwipeDistance = 50
+  useEffect(() => {
+    previousRef.current = current
+  }, [current])
 
-    if (swipeDistance > minSwipeDistance) {
-      nextSlide()
-    } else if (swipeDistance < -minSwipeDistance) {
-      prevSlide()
-    }
-    setTouchStartX(0)
-    setTouchEndX(0)
+  // News load after mount and can shrink (e.g. after a delete): keep the index in range.
+  useEffect(() => {
+    if (current >= total && total > 0) setCurrent(0)
+  }, [current, total])
 
-    restartAutoSlide()
-  }
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (autoSlideTimerRef.current) {
-      clearInterval(autoSlideTimerRef.current)
-    }
-    setIsDragging(true)
-    setStartX(e.pageX - (carouselRef.current?.offsetLeft || 0))
-    setScrollLeft(carouselRef.current?.scrollLeft || 0)
-  }
-
-  const restartAutoSlide = () => {
-    pauseAutoSlide()
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-    autoSlideTimerRef.current = setInterval(nextSlide, AUTO_MS)
-  }
-
-  const pauseAutoSlide = () => {
-    if (autoSlideTimerRef.current) clearInterval(autoSlideTimerRef.current)
-  }
-
-  const handleMouseLeave = () => {
-    setIsDragging(false)
-    restartAutoSlide()
-  }
-
-  const handleMouseUp = (e: React.MouseEvent) => {
-    setIsDragging(false)
-    const x = e.pageX - (carouselRef.current?.offsetLeft || 0)
-    const walk = x - startX
-    const minSwipeDistance = 50
-
-    if (Math.abs(walk) > minSwipeDistance) {
-      if (walk > 0) {
-        prevSlide()
-      } else {
-        nextSlide()
-      }
-    }
-
-    restartAutoSlide()
-  }
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return
-    e.preventDefault()
-  }
-
-  const getCardStyle = (index: number) => {
-    const carouselContainerWidth = carouselRef.current ? carouselRef.current.offsetWidth : windowWidth
-
-    const cardWidthMobile = windowWidth * 0.85
-    const cardWidthDesktop = Math.min(carouselContainerWidth * 0.5, 600)
-
-    const cardVisibleWidth = windowWidth < 768 ? cardWidthMobile : cardWidthDesktop
-    const cardHeight = windowWidth < 768 ? cardWidthMobile * 0.8 : cardWidthDesktop * 0.65
-
-    let offset = index - currentSlide
-
-    if (offset > totalSlides / 2) {
-      offset -= totalSlides
-    } else if (offset < -totalSlides / 2) {
-      offset += totalSlides
-    }
-
-    let translateX = 0
-    let scale = 1
-    let opacity = 0
-    let zIndex = 1
-    let rotateY = 0
-
-    const rotationFactor = 25
-    const cardSpacing = cardVisibleWidth * 0.85
-
-    if (offset === 0) {
-      translateX = 0
-      scale = 1
-      opacity = 1
-      zIndex = 10
-      rotateY = 0
-    } else if (offset === 1) {
-      translateX = cardSpacing
-      scale = 0.85
-      opacity = 0.7
-      zIndex = 9
-      rotateY = -rotationFactor
-    } else if (offset === -1) {
-      translateX = -cardSpacing
-      scale = 0.85
-      opacity = 0.7
-      zIndex = 9
-      rotateY = rotationFactor
-    } else {
-      opacity = 0
-      zIndex = 1
-      scale = 0.6
-      translateX = offset > 0 ? cardSpacing * 1.5 : -cardSpacing * 1.5
-      rotateY = offset > 0 ? -rotationFactor * 1.5 : rotationFactor * 1.5
-    }
-
-    return {
-      transform: `translateX(-50%) translateY(-50%) translateX(${translateX}px) scale(${scale}) rotateY(${rotateY}deg)`,
-      opacity,
-      zIndex,
-      transition: `transform ${SLIDE_MS}ms cubic-bezier(0.22, 1, 0.36, 1), opacity ${SLIDE_MS}ms ease, box-shadow ${SLIDE_MS}ms ease`,
-      position: "absolute",
-      left: "50%",
-      top: "50%",
-      width: `${cardVisibleWidth}px`,
-      height: `${cardHeight}px`,
-      willChange: "transform, opacity",
-      borderRadius: "1rem",
-      overflow: "hidden",
-      boxShadow: offset === 0 ? "0 25px 50px -12px rgba(0, 0, 0, 0.25)" : "none",
-    }
-  }
-
-  if (totalSlides === 0) {
+  if (total === 0) {
     return (
       <section className="py-12 lg:py-16 bg-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">Novedades Jurídicas</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold text-cambel-deep mb-3">Novedades Jurídicas</h2>
           <p className="text-lg text-gray-600">No hay artículos disponibles en este momento</p>
         </div>
       </section>
     )
   }
 
+  const isMobile = width > 0 && width < 768
+  const cardW = isMobile ? width * 0.78 : Math.min(width * 0.36, 560)
+  const cardH = cardW * (isMobile ? 0.8 : 0.85)
+  const active = articles[Math.min(current, total - 1)]
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    dragRef.current = { x: e.clientX, moved: false }
+    stopAuto()
+  }
+  const onPointerUp = (e: React.PointerEvent) => {
+    const start = dragRef.current
+    if (!start) return
+    const dx = e.clientX - start.x
+    if (Math.abs(dx) > SWIPE_PX) {
+      start.moved = true
+      go(dx < 0 ? 1 : -1)
+    }
+    startAuto()
+  }
+
+  const onCardClick = (index: number, d: number) => {
+    if (dragRef.current?.moved) {
+      dragRef.current = null // swallow only the click that ends a swipe
+      return
+    }
+    if (d === 0) router.push(`/noticias/${articles[index].id}`)
+    else go(d)
+  }
+
   return (
-    <section className="py-12 lg:py-16 bg-white overflow-hidden flex flex-col items-center">
-      <div className="container mx-auto px-4 mb-4 lg:mb-8">
-        <div className="text-center" data-reveal-stagger>
-          <h2 data-reveal className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">Novedades Jurídicas</h2>
-          <p data-reveal className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Mantente informado sobre nuestras últimas publicaciones, análisis y eventos.
-          </p>
-        </div>
-      </div>
-      
-      <div data-reveal className="w-full">
-      <div
-        ref={carouselRef}
-        className="relative w-full max-w-7xl mx-auto min-h-[400px] lg:min-h-[500px] flex items-center justify-center transform-style-preserve-3d perspective-[1500px] touch-pan-y cursor-grab active:cursor-grabbing"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onMouseEnter={pauseAutoSlide}
-        onMouseDown={handleMouseDown}
-        onMouseLeave={handleMouseLeave}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
-      >
-        {allArticles.map((article, index) => (
-          <Card
-            key={index}
-            className={`group shadow-xl overflow-hidden transform-gpu select-none ${
-              index === currentSlide ? "cursor-pointer" : ""
-            }`}
-            style={getCardStyle(index)}
-            onClick={() => {
-              if (isDragging) return
-              if (index === currentSlide) {
-                router.push(`/noticias/${article.id}`)
-              } else if (index === (currentSlide + 1) % totalSlides) {
-                nextSlide()
-              } else if (index === (currentSlide - 1 + totalSlides) % totalSlides) {
-                prevSlide()
-              }
-            }}
+    <section className="py-16 lg:py-24 bg-white overflow-hidden">
+      <div className="container mx-auto px-4 mb-10 lg:mb-14" data-reveal-stagger>
+        <div data-reveal className="flex items-end justify-between gap-6">
+          <div className="flex items-center gap-5">
+            <h2 className="text-3xl lg:text-5xl font-bold text-cambel-deep">Novedades Jurídicas</h2>
+            <span aria-hidden="true" className="hidden sm:block h-[2px] w-20 bg-cambel-deep" />
+          </div>
+          <Link
+            href="/noticias"
+            className="group flex shrink-0 items-center gap-3 font-mono text-sm uppercase tracking-wider text-cambel-deep hover:text-cambel-salmon transition-colors"
           >
-            <CardContent className="p-0 h-full flex flex-col lg:flex-row">
-              <div className="relative w-full h-[40%] lg:w-1/2 lg:h-full bg-gray-800">
-                <Image
-                  src={article.image || "/placeholder.svg"}
-                  alt={article.title}
-                  layout="fill"
-                  objectFit="cover"
-                  className="rounded-t-xl lg:rounded-l-xl lg:rounded-tr-none transition-transform duration-700 ease-out group-hover:scale-105"
-                  sizes="100vw"
-                />
-              </div>
-              <div className="w-full h-[60%] lg:w-1/2 lg:h-full p-6 sm:p-8 flex flex-col justify-center items-center bg-gray-900 text-white rounded-b-xl lg:rounded-r-xl lg:rounded-bl-none">
-                <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 line-clamp-4 lg:line-clamp-3 text-center">
-                  {article.title}
-                </h3>
-                <span
-                  aria-hidden="true"
-                  className="block h-[2px] w-16 mb-3 bg-cambel-salmon origin-center scale-x-0 transition-transform duration-500 ease-out group-hover:scale-x-100"
-                />
-                <p className="text-sm sm:text-base lg:text-lg font-semibold mb-4 text-center">
-                  {article.type} - {article.category}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+            Ver todas
+            <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">
+              →
+            </span>
+          </Link>
+        </div>
+        <p data-reveal className="mt-3 text-lg text-gray-600 max-w-3xl">
+          Mantente informado sobre nuestras últimas publicaciones, análisis y eventos.
+        </p>
       </div>
+
+      <div data-reveal>
+        <div
+          ref={stageRef}
+          className="relative w-full select-none touch-pan-y cursor-grab active:cursor-grabbing [perspective:1600px]"
+          style={{ height: cardH ? cardH + 24 : 420 }}
+          onMouseEnter={stopAuto}
+          onMouseLeave={startAuto}
+          onPointerDown={onPointerDown}
+          onPointerUp={onPointerUp}
+          onPointerCancel={() => (dragRef.current = null)}
+        >
+          {width > 0 &&
+            articles.map((article, index) => {
+              const d = distance(index, current, total)
+              const prevD = distance(index, previousRef.current, total)
+              const layout = LAYOUT[Math.abs(d)] ?? HIDDEN
+              const side = Math.sign(d)
+              // A card wrapping from one end to the other jumps instead of flying across the stage.
+              const jumps = Math.abs(d - prevD) > 1
+              return (
+                <button
+                  key={article.id}
+                  type="button"
+                  aria-label={d === 0 ? `Leer: ${article.title}` : `Ver novedad: ${article.title}`}
+                  tabIndex={Math.abs(d) <= 1 ? 0 : -1}
+                  onClick={() => onCardClick(index, d)}
+                  className="absolute left-1/2 top-1/2 overflow-hidden rounded-xl bg-cambel-deep shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cambel-salmon"
+                  style={{
+                    width: cardW,
+                    height: cardH,
+                    zIndex: 10 - Math.abs(d),
+                    opacity: Math.abs(d) <= 2 ? 1 : 0,
+                    pointerEvents: Math.abs(d) <= 2 ? "auto" : "none",
+                    transform: `translate(-50%, -50%) translateX(${side * layout.x * cardW}px) scale(${layout.scale}) rotateY(${-side * layout.rotate}deg)`,
+                    transition: jumps
+                      ? "none"
+                      : `transform ${SLIDE_MS}ms cubic-bezier(0.22, 1, 0.36, 1), opacity ${SLIDE_MS}ms ease`,
+                    willChange: "transform",
+                  }}
+                >
+                  <Image
+                    src={article.image || "/placeholder.svg"}
+                    alt=""
+                    fill
+                    draggable={false}
+                    className="object-cover"
+                    sizes="(max-width: 768px) 80vw, 600px"
+                  />
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 bg-cambel-deep transition-opacity duration-700"
+                    style={{ opacity: d === 0 ? 0 : 0.25 }}
+                  />
+                </button>
+              )
+            })}
+        </div>
+
+        <div className="container mx-auto px-4 mt-10">
+          <div className="mx-auto grid max-w-3xl grid-cols-[auto_1fr_auto] items-center gap-4 sm:gap-8">
+            <button
+              type="button"
+              onClick={() => {
+                go(-1)
+                startAuto()
+              }}
+              aria-label="Novedad anterior"
+              className="p-2 text-cambel-deep hover:text-cambel-salmon transition-colors"
+            >
+              <DoubleArrow direction="left" />
+            </button>
+
+            <div key={active.id} className="news-detail-in min-h-[9rem]" aria-live="polite">
+              <p className="font-mono text-xs sm:text-sm uppercase tracking-wider">
+                <span className="text-cambel-mist">{active.type}</span>
+                {active.category && <span className="text-cambel-deep"> | {active.category}</span>}
+              </p>
+              <Link
+                href={`/noticias/${active.id}`}
+                className="mt-2 block text-2xl lg:text-3xl font-bold leading-tight text-cambel-deep hover:text-cambel-salmon transition-colors"
+              >
+                {active.title}
+              </Link>
+              {active.description && <p className="mt-3 text-gray-600 line-clamp-3">{active.description}</p>}
+              {active.date && (
+                <p className="mt-3 font-mono text-xs uppercase tracking-wider text-gray-500">{active.date}</p>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                go(1)
+                startAuto()
+              }}
+              aria-label="Novedad siguiente"
+              className="p-2 text-cambel-deep hover:text-cambel-salmon transition-colors"
+            >
+              <DoubleArrow direction="right" />
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   )
 }
-
-export default News

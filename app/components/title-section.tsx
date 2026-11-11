@@ -65,7 +65,7 @@ export default function TitleSection() {
           {lawyers.map((lawyer) => (
             <Card data-reveal key={lawyer.id} className="overflow-hidden bg-[#F3F0E9] border border-cambel-deep/10 rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 group">
               <CardContent className="p-4 lg:p-5 h-full flex flex-col bg-transparent">
-                <div data-reveal="diagonal" className="relative w-full aspect-[3/4] rounded-lg overflow-hidden mb-5">
+                <div data-reveal="photo" className="relative w-full aspect-[3/4] rounded-lg overflow-hidden mb-5">
                   <Image
                     src={lawyer.image || "/placeholder.svg"}
                     alt={lawyer.name}

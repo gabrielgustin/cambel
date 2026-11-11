@@ -201,20 +201,38 @@ html:not(.lenis) {
     opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
     transform 1s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms);
 }
-/* Images open with the same V-shaped diagonal as the hero.
-   The clip goes on the child: a fully clipped target never counts as visible for IntersectionObserver. */
-.reveal-ready [data-reveal="diagonal"] {
+/* Photos fade in while settling from a slight zoom. Styled on the child so the observed box stays measurable,
+   and only the hidden state sets transform, so the professionals' hover zoom still works afterwards. */
+.reveal-ready [data-reveal="photo"] {
   opacity: 1;
   transform: none;
 }
-.reveal-ready [data-reveal="diagonal"] > * {
-  clip-path: polygon(0% 100%, 50% 125%, 100% 100%, 100% 100%, 0% 100%);
-  transition: clip-path 1.4s cubic-bezier(0.65, 0, 0.25, 1) var(--reveal-delay, 0ms);
+.reveal-ready [data-reveal="photo"] > * {
+  transition:
+    opacity 1.2s ease-out var(--reveal-delay, 0ms),
+    transform 1.6s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms);
+}
+.reveal-ready [data-reveal="photo"]:not(.is-revealed) > * {
+  opacity: 0;
+  transform: scale(1.08);
 }
 .reveal-ready [data-reveal].is-revealed {
   opacity: 1;
   transform: none;
 }
-.reveal-ready [data-reveal="diagonal"].is-revealed > * {
-  clip-path: polygon(0% -25%, 50% 0%, 100% -25%, 100% 100%, 0% 100%);
+
+/* Text of the active news card fades up on each change (app/components/news.tsx). */
+@keyframes news-detail-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+.news-detail-in {
+  animation: news-detail-in 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .news-detail-in {
+    animation: none;
+  }
 }

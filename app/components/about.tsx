@@ -77,7 +77,7 @@ export default function About() {
           </div>
 
           {/* Image Column */}
-          <div data-reveal="diagonal" className="relative w-full rounded-2xl overflow-hidden bg-cambel-warm border-[3px] border-cambel-deep/5 p-2">
+          <div data-reveal="photo" className="relative w-full rounded-2xl overflow-hidden bg-cambel-warm border-[3px] border-cambel-deep/5 p-2">
             <Image
               src="/images/equipo-cambel.jpg"
               alt="Equipo CAMBEL - Red Jurídica"
