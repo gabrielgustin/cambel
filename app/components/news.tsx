@@ -8,6 +8,9 @@ import { useRouter } from "next/navigation"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useNews } from "@/app/context/news-context"
 
+const SLIDE_MS = 800
+const AUTO_MS = 6000
+
 const News = () => {
   const router = useRouter()
   const { news: allArticles } = useNews()
@@ -41,7 +44,7 @@ const News = () => {
     if (isTransitioning) {
       const timer = setTimeout(() => {
         setIsTransitioning(false)
-      }, 600)
+      }, SLIDE_MS)
       return () => clearTimeout(timer)
     }
   }, [isTransitioning])
@@ -52,10 +55,10 @@ const News = () => {
       if (autoSlideTimerRef.current) {
         clearInterval(autoSlideTimerRef.current)
       }
-      autoSlideTimerRef.current = setInterval(nextSlide, 3000)
+      autoSlideTimerRef.current = setInterval(nextSlide, AUTO_MS)
     }
 
-    if (totalSlides > 0) {
+    if (totalSlides > 0 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       startAutoSlide()
     }
 
@@ -93,7 +96,6 @@ const News = () => {
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    e.preventDefault()
     setTouchEndX(e.touches[0].clientX)
   }
 
@@ -109,10 +111,7 @@ const News = () => {
     setTouchStartX(0)
     setTouchEndX(0)
 
-    if (autoSlideTimerRef.current) {
-      clearInterval(autoSlideTimerRef.current)
-    }
-    autoSlideTimerRef.current = setInterval(nextSlide, 3000)
+    restartAutoSlide()
   }
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -124,12 +123,19 @@ const News = () => {
     setScrollLeft(carouselRef.current?.scrollLeft || 0)
   }
 
+  const restartAutoSlide = () => {
+    pauseAutoSlide()
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    autoSlideTimerRef.current = setInterval(nextSlide, AUTO_MS)
+  }
+
+  const pauseAutoSlide = () => {
+    if (autoSlideTimerRef.current) clearInterval(autoSlideTimerRef.current)
+  }
+
   const handleMouseLeave = () => {
     setIsDragging(false)
-    if (autoSlideTimerRef.current) {
-      clearInterval(autoSlideTimerRef.current)
-    }
-    autoSlideTimerRef.current = setInterval(nextSlide, 3000)
+    restartAutoSlide()
   }
 
   const handleMouseUp = (e: React.MouseEvent) => {
@@ -146,10 +152,7 @@ const News = () => {
       }
     }
 
-    if (autoSlideTimerRef.current) {
-      clearInterval(autoSlideTimerRef.current)
-    }
-    autoSlideTimerRef.current = setInterval(nextSlide, 3000)
+    restartAutoSlide()
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -213,13 +216,13 @@ const News = () => {
       transform: `translateX(-50%) translateY(-50%) translateX(${translateX}px) scale(${scale}) rotateY(${rotateY}deg)`,
       opacity,
       zIndex,
-      transition: isTransitioning ? "all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "none",
+      transition: `transform ${SLIDE_MS}ms cubic-bezier(0.22, 1, 0.36, 1), opacity ${SLIDE_MS}ms ease, box-shadow ${SLIDE_MS}ms ease`,
       position: "absolute",
       left: "50%",
       top: "50%",
       width: `${cardVisibleWidth}px`,
       height: `${cardHeight}px`,
-      willChange: "transform, opacity, z-index",
+      willChange: "transform, opacity",
       borderRadius: "1rem",
       overflow: "hidden",
       boxShadow: offset === 0 ? "0 25px 50px -12px rgba(0, 0, 0, 0.25)" : "none",
@@ -251,10 +254,11 @@ const News = () => {
       <div data-reveal className="w-full">
       <div
         ref={carouselRef}
-        className="relative w-full max-w-7xl mx-auto min-h-[400px] lg:min-h-[500px] flex items-center justify-center transform-style-preserve-3d perspective-[1500px] cursor-grab active:cursor-grabbing"
+        className="relative w-full max-w-7xl mx-auto min-h-[400px] lg:min-h-[500px] flex items-center justify-center transform-style-preserve-3d perspective-[1500px] touch-pan-y cursor-grab active:cursor-grabbing"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onMouseEnter={pauseAutoSlide}
         onMouseDown={handleMouseDown}
         onMouseLeave={handleMouseLeave}
         onMouseUp={handleMouseUp}
@@ -263,7 +267,7 @@ const News = () => {
         {allArticles.map((article, index) => (
           <Card
             key={index}
-            className={`shadow-xl overflow-hidden transform-gpu select-none ${
+            className={`group shadow-xl overflow-hidden transform-gpu select-none ${
               index === currentSlide ? "cursor-pointer" : ""
             }`}
             style={getCardStyle(index)}
@@ -285,7 +289,7 @@ const News = () => {
                   alt={article.title}
                   layout="fill"
                   objectFit="cover"
-                  className="rounded-t-xl lg:rounded-l-xl lg:rounded-tr-none"
+                  className="rounded-t-xl lg:rounded-l-xl lg:rounded-tr-none transition-transform duration-700 ease-out group-hover:scale-105"
                   sizes="100vw"
                 />
               </div>
@@ -293,6 +297,10 @@ const News = () => {
                 <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 line-clamp-4 lg:line-clamp-3 text-center">
                   {article.title}
                 </h3>
+                <span
+                  aria-hidden="true"
+                  className="block h-[2px] w-16 mb-3 bg-cambel-salmon origin-center scale-x-0 transition-transform duration-500 ease-out group-hover:scale-x-100"
+                />
                 <p className="text-sm sm:text-base lg:text-lg font-semibold mb-4 text-center">
                   {article.type} - {article.category}
                 </p>

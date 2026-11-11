@@ -70,7 +70,7 @@ export default function TitleSection() {
                     src={lawyer.image || "/placeholder.svg"}
                     alt={lawyer.name}
                     fill
-                    className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    className="object-cover object-top group-hover:scale-[1.06] transition-transform duration-700 ease-out"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
                 </div>
@@ -78,6 +78,10 @@ export default function TitleSection() {
                   <h3 className="text-xl lg:text-2xl font-sans font-semibold text-cambel-deep mb-1">
                     {lawyer.name}
                   </h3>
+                  <span
+                    aria-hidden="true"
+                    className="block h-[2px] w-10 mb-2 bg-cambel-salmon origin-left scale-x-0 transition-transform duration-500 ease-out group-hover:scale-x-100"
+                  />
                   <p className="text-sm lg:text-base text-cambel-salmon font-medium tracking-wide">
                     {lawyer.role}
                   </p>

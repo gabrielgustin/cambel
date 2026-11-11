@@ -8,6 +8,7 @@ import FooterWrapper from "@/app/components/footer-wrapper"
 import { NewsProvider } from "@/app/context/news-context"
 import SmoothScroll from "@/app/components/smooth-scroll"
 import RevealObserver from "@/app/components/reveal-observer"
+import BackToTop from "@/app/components/back-to-top"
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -55,6 +56,7 @@ export default function RootLayout({
             <HeaderWrapper />
             {children}
             <FooterWrapper />
+            <BackToTop />
           </NewsProvider>
         </ThemeProvider>
       </body>
