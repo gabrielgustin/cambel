@@ -57,15 +57,15 @@ export default function TitleSection() {
   return (
     <section className="py-16 lg:py-24 bg-cambel-warm">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl md:text-4xl lg:text-5xl text-black text-center font-sans font-semibold mb-12 lg:mb-16">
+        <h2 data-reveal className="text-3xl md:text-4xl lg:text-5xl text-black text-center font-sans font-semibold mb-12 lg:mb-16">
           Profesionales
         </h2>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 max-w-7xl mx-auto">
+        <div data-reveal-stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 max-w-7xl mx-auto">
           {lawyers.map((lawyer) => (
-            <Card key={lawyer.id} className="overflow-hidden bg-white/50 border border-cambel-warm/50 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group">
+            <Card data-reveal key={lawyer.id} className="overflow-hidden bg-white/50 border border-cambel-warm/50 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group">
               <CardContent className="p-4 lg:p-5 h-full flex flex-col">
-                <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden mb-5">
+                <div data-reveal="diagonal" className="relative w-full aspect-[3/4] rounded-lg overflow-hidden mb-5">
                   <Image
                     src={lawyer.image || "/placeholder.svg"}
                     alt={lawyer.name}

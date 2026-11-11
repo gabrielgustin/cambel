@@ -240,14 +240,15 @@ const News = () => {
   return (
     <section className="py-12 lg:py-16 bg-white overflow-hidden flex flex-col items-center">
       <div className="container mx-auto px-4 mb-4 lg:mb-8">
-        <div className="text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">Novedades Jurídicas</h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+        <div className="text-center" data-reveal-stagger>
+          <h2 data-reveal className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">Novedades Jurídicas</h2>
+          <p data-reveal className="text-lg text-gray-600 max-w-3xl mx-auto">
             Mantente informado sobre nuestras últimas publicaciones, análisis y eventos.
           </p>
         </div>
       </div>
       
+      <div data-reveal className="w-full">
       <div
         ref={carouselRef}
         className="relative w-full max-w-7xl mx-auto min-h-[400px] lg:min-h-[500px] flex items-center justify-center transform-style-preserve-3d perspective-[1500px] cursor-grab active:cursor-grabbing"
@@ -299,6 +300,7 @@ const News = () => {
             </CardContent>
           </Card>
         ))}
+      </div>
       </div>
     </section>
   )

@@ -192,3 +192,29 @@ html:not(.lenis) {
     clip-path: polygon(0 50%, 50% 100%, 100% 50%, 100% 100%, 0 100%);
   }
 }
+
+/* Reveal on scroll (app/components/reveal-observer.tsx). Only hides content once JS has confirmed it can reveal it. */
+.reveal-ready [data-reveal] {
+  opacity: 0;
+  transform: translateY(32px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms);
+}
+/* Images open with the same V-shaped diagonal as the hero.
+   The clip goes on the child: a fully clipped target never counts as visible for IntersectionObserver. */
+.reveal-ready [data-reveal="diagonal"] {
+  opacity: 1;
+  transform: none;
+}
+.reveal-ready [data-reveal="diagonal"] > * {
+  clip-path: polygon(0% 100%, 50% 125%, 100% 100%, 100% 100%, 0% 100%);
+  transition: clip-path 1.4s cubic-bezier(0.65, 0, 0.25, 1) var(--reveal-delay, 0ms);
+}
+.reveal-ready [data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+}
+.reveal-ready [data-reveal="diagonal"].is-revealed > * {
+  clip-path: polygon(0% -25%, 50% 0%, 100% -25%, 100% 100%, 0% 100%);
+}

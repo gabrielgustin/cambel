@@ -9,20 +9,20 @@ export default function About() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Content Column */}
-          <div className="space-y-8">
+          <div className="space-y-8" data-reveal-stagger>
             {/* Title and Subtitle */}
-            <div>
+            <div data-reveal>
               <h2 className="text-5xl md:text-6xl font-bold text-cambel-deep mb-3">Sobre Nosotros</h2>
               <p className="text-sm font-mono uppercase tracking-widest text-gray-600">RED DE SABERES JURÍDICOS</p>
             </div>
 
             {/* Description */}
             <div className="space-y-4 text-cambel-deep">
-              <p className="text-lg leading-relaxed">
+              <p data-reveal className="text-lg leading-relaxed">
                 CAMBEL es más que un estudio jurídico tradicional. Somos una red integrada de especialidades que
                 trabajan en conjunto para ofrecer soluciones completas y personalizadas.
               </p>
-              <p className="text-lg leading-relaxed">
+              <p data-reveal className="text-lg leading-relaxed">
                 Nuestro enfoque colaborativo nos permite abordar cada caso desde múltiples perspectivas, garantizando
                 que nuestros clientes reciban el mejor asesoramiento posible.
               </p>
@@ -31,7 +31,7 @@ export default function About() {
             {/* Values Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
               {/* Experiencia */}
-              <div className="flex items-start gap-4">
+              <div data-reveal className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-12 h-12 bg-cambel-salmon rounded-lg flex items-center justify-center">
                   <Shield className="w-6 h-6 text-white" />
                 </div>
@@ -42,7 +42,7 @@ export default function About() {
               </div>
 
               {/* Colaboración */}
-              <div className="flex items-start gap-4">
+              <div data-reveal className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-12 h-12 bg-cambel-deep rounded-lg flex items-center justify-center">
                   <Users className="w-6 h-6 text-white" />
                 </div>
@@ -53,7 +53,7 @@ export default function About() {
               </div>
 
               {/* Integridad */}
-              <div className="flex items-start gap-4">
+              <div data-reveal className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-12 h-12 bg-cambel-salmon rounded-lg flex items-center justify-center">
                   <Scale className="w-6 h-6 text-white" />
                 </div>
@@ -64,7 +64,7 @@ export default function About() {
               </div>
 
               {/* Cercanía */}
-              <div className="flex items-start gap-4">
+              <div data-reveal className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-12 h-12 bg-cambel-deep rounded-lg flex items-center justify-center">
                   <Heart className="w-6 h-6 text-white" />
                 </div>
@@ -77,7 +77,7 @@ export default function About() {
           </div>
 
           {/* Image Column */}
-          <div className="relative w-full rounded-2xl overflow-hidden bg-cambel-warm border-[3px] border-cambel-deep/5 p-2">
+          <div data-reveal="diagonal" className="relative w-full rounded-2xl overflow-hidden bg-cambel-warm border-[3px] border-cambel-deep/5 p-2">
             <Image
               src="/images/equipo-cambel.jpg"
               alt="Equipo CAMBEL - Red Jurídica"

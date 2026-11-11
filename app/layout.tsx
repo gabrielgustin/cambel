@@ -7,6 +7,7 @@ import HeaderWrapper from "@/app/components/header-wrapper"
 import FooterWrapper from "@/app/components/footer-wrapper"
 import { NewsProvider } from "@/app/context/news-context"
 import SmoothScroll from "@/app/components/smooth-scroll"
+import RevealObserver from "@/app/components/reveal-observer"
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -38,10 +39,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${montserrat.variable} ${spaceMono.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Before first paint, so reveal targets never flash visible-then-hidden. Skipped for reduced motion. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("reveal-ready")`,
+          }}
+        />
+      </head>
       <body className={`${montserrat.className} relative`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <NewsProvider>
             <SmoothScroll />
+            <RevealObserver />
             <HeaderWrapper />
             {children}
             <FooterWrapper />

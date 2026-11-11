@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Menu, X } from "lucide-react"
@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label"
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
+  const progressRef = useRef<HTMLDivElement>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const { isAdmin, login, logout } = useNews()
@@ -28,14 +29,14 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (typeof window !== "undefined") {
-        setIsScrolled(window.scrollY > 50)
-      }
+      setIsScrolled(window.scrollY > 50)
+      // Reading progress: written to the element directly, no React re-render per frame.
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      if (progressRef.current) progressRef.current.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`
     }
 
-    if (typeof window !== "undefined") {
-      window.addEventListener("scroll", handleScroll)
-    }
+    handleScroll()
+    window.addEventListener("scroll", handleScroll, { passive: true })
 
     return () => {
       if (typeof window !== "undefined") {
@@ -92,7 +93,12 @@ export default function Header() {
         )}
       >
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-20">
+          <div
+            className={cn(
+              "flex items-center justify-between transition-[height] duration-500 ease-out",
+              isScrolled ? "h-16" : "h-20",
+            )}
+          >
             {/* Logo */}
             <Link href="/" className="flex items-center">
               <Image
@@ -100,7 +106,7 @@ export default function Header() {
                 alt="Cambel - Red Jurídica"
                 width={315}
                 height={90}
-                className="h-14 w-auto"
+                className={cn("w-auto transition-[height] duration-500 ease-out", isScrolled ? "h-11" : "h-14")}
                 priority
               />
             </Link>
@@ -183,6 +189,11 @@ export default function Header() {
             </button>
           </div>
         </div>
+        <div
+          ref={progressRef}
+          aria-hidden="true"
+          className="absolute bottom-0 left-0 h-[2px] w-full origin-left scale-x-0 bg-cambel-salmon"
+        />
       </header>
 
       {/* Mobile Menu - FUERA del header para mejor z-index */}
