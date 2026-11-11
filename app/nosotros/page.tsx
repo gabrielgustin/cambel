@@ -1,5 +1,14 @@
 import Image from "next/image"
-import { Shield, Users, Scale, Heart, Target, Lightbulb, Award, Globe } from "lucide-react"
+import { Shield, Users, Scale, Heart, Target, Lightbulb, Award, Globe, Linkedin, Phone } from "lucide-react"
+import { lawyers } from "@/lib/lawyers"
+
+// Long bios for this page; names, photos and contact links come from the shared list.
+const bios: Record<number, string[]> = {
+  1: ["Abogada y escribana, con especializacion en Derecho Tributario, Civil y Comercial. Cuenta con experiencia en el ambito de las Fuerzas Armadas. Su ejercicio profesional se caracteriza por la rigurosidad tecnica, una vision estrategica orientada a la resolucion eficiente de conflictos y un compromiso permanente con la actualizacion profesional. Valora el trabajo en equipo y el desarrollo de redes colaborativas, lo que le permite abordar proyectos complejos de manera integral y brindar soluciones solidas y bien fundamentadas."],
+  2: ["Abogada y escribana. Litigante en Derecho del Consumidor. Miembro de Abogados Consumeristas (Cordoba). Se desempena como abogada patrocinante en ADCOIN, interviniendo en acciones individuales y colectivas. Su practica profesional se distingue por un enfoque estrategico y tecnico, orientado a la defensa de los derechos de los consumidores y a la resolucion eficaz de conflictos juridicos."],
+  3: ["Abogada y escribana, con mas de diez años de experiencia en litigios catastrales, civiles, sucesorios y de familia. Brinda asesoramiento integral a organizaciones, combinando solvencia tecnica y una mirada practica en la gestion de conflictos. Actualmente es estudiante de UNIR, con orientacion a oportunidades internacionales y al trabajo colaborativo, aportando una vision dinamica e interdisciplinaria a su ejercicio profesional."],
+  4: ["Abogado, maestrando en Derecho Empresarial (UBP) y cursante de la Especialización en Derecho del Trabajo (UNC/UCC). Ex asesor legal de la Inspección de Personas Jurídicas (IPJ), cuenta con más de diez años de experiencia en litigios civiles, comerciales y laborales, así como en la redacción y negociación de contratos y en cumplimiento normativo.", "Su práctica profesional se orienta al derecho empresarial, civil, comercial, laboral y societario, brindando asesoramiento integral a empresas y particulares desde una mirada estratégica, centrada en el funcionamiento interno de las organizaciones y en la resolución concreta de sus necesidades jurídicas."],
+}
 
 export default function NosotrosPage() {
   return (
@@ -50,102 +59,81 @@ export default function NosotrosPage() {
       </section>
 
       {/* Equipo Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 lg:py-28 bg-[#F3F0E9]">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-cambel-deep mb-4">Nuestro Equipo</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">Profesionales comprometidos con la excelencia</p>
+          <div className="text-center mb-16 lg:mb-24" data-reveal-stagger>
+            <h2 data-reveal className="text-4xl md:text-5xl font-bold text-cambel-deep mb-4">
+              Nuestro Equipo
+            </h2>
+            <p data-reveal className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Profesionales comprometidos con la excelencia
+            </p>
           </div>
 
-          <div className="space-y-16 max-w-5xl mx-auto">
-            {/* Lourdes Martin */}
-            <div className="flex flex-col md:flex-row gap-8 items-center">
-              <div className="w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden flex-shrink-0 shadow-lg">
-                <Image
-                  src="/images/lourdes-martin.jpg"
-                  alt="Lourdes Martin"
-                  width={224}
-                  height={224}
-                  className="w-full h-full object-cover object-top"
-                />
-              </div>
-              <div className="flex-1 text-center md:text-left">
-                <h3 className="text-2xl lg:text-3xl font-bold text-cambel-deep mb-1">Lourdes Martin</h3>
-                <p className="text-cambel-salmon font-medium tracking-wide mb-4">Socia</p>
-                <p className="text-gray-700 leading-relaxed">
-                  Abogada y escribana, con especializacion en Derecho Tributario, Civil y Comercial. Cuenta con experiencia en el ambito de las Fuerzas Armadas. Su ejercicio profesional se caracteriza por la rigurosidad tecnica, una vision estrategica orientada a la resolucion eficiente de conflictos y un compromiso permanente con la actualizacion profesional. Valora el trabajo en equipo y el desarrollo de redes colaborativas, lo que le permite abordar proyectos complejos de manera integral y brindar soluciones solidas y bien fundamentadas.
-                </p>
-              </div>
-            </div>
+          <div className="space-y-20 lg:space-y-28 max-w-6xl mx-auto">
+            {lawyers.map((lawyer, index) => {
+              const reversed = index % 2 === 1
+              return (
+                <article
+                  key={lawyer.id}
+                  className={`grid items-center gap-10 md:grid-cols-12 md:gap-12 lg:gap-16 ${reversed ? "md:[direction:rtl]" : ""}`}
+                >
+                  {/* Portrait: tall frame, since the photos are vertical */}
+                  <div className="md:col-span-5 [direction:ltr]">
+                    <div className="group relative mx-auto w-full max-w-sm">
+                      <div
+                        data-reveal="photo"
+                        className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-cambel-warm shadow-xl"
+                      >
+                        <Image
+                          src={lawyer.image}
+                          alt={lawyer.name}
+                          fill
+                          sizes="(max-width: 768px) 90vw, 400px"
+                          className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                        />
+                      </div>
+                    </div>
+                  </div>
 
-            {/* Noheli Montoya */}
-            <div className="flex flex-col md:flex-row-reverse gap-8 items-center">
-              <div className="w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden flex-shrink-0 shadow-lg">
-                <Image
-                  src="/images/nohelia-montoya.jpg"
-                  alt="Noheli Montoya"
-                  width={224}
-                  height={224}
-                  className="w-full h-full object-cover object-top"
-                />
-              </div>
-              <div className="flex-1 text-center md:text-right">
-                <h3 className="text-2xl lg:text-3xl font-bold text-cambel-deep mb-1">Noheli Montoya</h3>
-                <p className="text-cambel-salmon font-medium tracking-wide mb-4">Socia</p>
-                <p className="text-gray-700 leading-relaxed">
-                  Abogada y escribana. Litigante en Derecho del Consumidor. Miembro de Abogados Consumeristas (Cordoba). Se desempena como abogada patrocinante en ADCOIN, interviniendo en acciones individuales y colectivas. Su practica profesional se distingue por un enfoque estrategico y tecnico, orientado a la defensa de los derechos de los consumidores y a la resolucion eficaz de conflictos juridicos.
-                </p>
-              </div>
-            </div>
-
-            {/* Pilar Cobos */}
-            <div className="flex flex-col md:flex-row gap-8 items-center">
-              <div className="w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden flex-shrink-0 shadow-lg">
-                <Image
-                  src="/images/pilar-cobos.jpg"
-                  alt="Pilar Cobos"
-                  width={224}
-                  height={224}
-                  className="w-full h-full object-cover object-top"
-                />
-              </div>
-              <div className="flex-1 text-center md:text-left">
-                <h3 className="text-2xl lg:text-3xl font-bold text-cambel-deep mb-1">Pilar Cobos</h3>
-                <p className="text-cambel-salmon font-medium tracking-wide mb-4">Socia</p>
-                <p className="text-gray-700 leading-relaxed">
-                  Abogada y escribana, con mas de diez años de experiencia en litigios catastrales, civiles, sucesorios y de familia. Brinda asesoramiento integral a organizaciones, combinando solvencia tecnica y una mirada practica en la gestion de conflictos. Actualmente es estudiante de UNIR, con orientacion a oportunidades internacionales y al trabajo colaborativo, aportando una vision dinamica e interdisciplinaria a su ejercicio profesional.
-                </p>
-              </div>
-            </div>
-
-            {/* Jose Eduardo Lovera */}
-            <div className="flex flex-col md:flex-row-reverse gap-8 items-center">
-              <div className="w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden flex-shrink-0 shadow-lg">
-                <Image
-                  src="/images/jose-eduardo-lovera.jpg"
-                  alt="Jose Eduardo Lovera"
-                  width={224}
-                  height={224}
-                  className="w-full h-full object-cover object-top"
-                />
-              </div>
-              <div className="flex-1 text-center md:text-right">
-                <h3 className="text-2xl lg:text-3xl font-bold text-cambel-deep mb-1">Jose Eduardo Lovera</h3>
-                <p className="text-cambel-salmon font-medium tracking-wide mb-4">Socio</p>
-                <p className="text-gray-700 leading-relaxed">
-                  Abogado, maestrando en Derecho Empresarial (UBP) y cursante de la Especialización en Derecho del
-                  Trabajo (UNC/UCC). Ex asesor legal de la Inspección de Personas Jurídicas (IPJ), cuenta con más de
-                  diez años de experiencia en litigios civiles, comerciales y laborales, así como en la redacción y
-                  negociación de contratos y en cumplimiento normativo.
-                  <br />
-                  <br />
-                  Su práctica profesional se orienta al derecho empresarial, civil, comercial, laboral y societario,
-                  brindando asesoramiento integral a empresas y particulares desde una mirada estratégica, centrada
-                  en el funcionamiento interno de las organizaciones y en la resolución concreta de sus necesidades
-                  jurídicas.
-                </p>
-              </div>
-            </div>
+                  <div data-reveal className="md:col-span-7 [direction:ltr]">
+                    <p className="font-mono text-sm tracking-widest text-cambel-mist">
+                      {String(index + 1).padStart(2, "0")}
+                    </p>
+                    <h3 className="mt-2 text-3xl lg:text-4xl font-bold text-cambel-deep">{lawyer.name}</h3>
+                    <p className="mt-1 text-cambel-salmon font-medium tracking-wide">{lawyer.role}</p>
+                    <span aria-hidden="true" className="mt-5 block h-[2px] w-14 bg-cambel-salmon" />
+                    <div className="mt-6 space-y-4 text-gray-700 leading-relaxed lg:text-lg">
+                      {bios[lawyer.id].map((paragraph) => (
+                        <p key={paragraph.slice(0, 24)}>{paragraph}</p>
+                      ))}
+                    </div>
+                    <div className="mt-8 flex gap-3">
+                      {lawyer.linkedin && (
+                        <a
+                          href={lawyer.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`LinkedIn de ${lawyer.name}`}
+                          className="rounded-full bg-cambel-deep p-3 text-white transition-colors duration-300 hover:bg-cambel-salmon"
+                        >
+                          <Linkedin className="h-5 w-5" />
+                        </a>
+                      )}
+                      <a
+                        href={`https://wa.me/${lawyer.whatsapp.replace(/[\s\-‑]/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`WhatsApp de ${lawyer.name}`}
+                        className="rounded-full bg-cambel-deep p-3 text-white transition-colors duration-300 hover:bg-cambel-salmon"
+                      >
+                        <Phone className="h-5 w-5" />
+                      </a>
+                    </div>
+                  </div>
+                </article>
+              )
+            })}
           </div>
         </div>
       </section>
