@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import HeaderWrapper from "@/app/components/header-wrapper"
 import FooterWrapper from "@/app/components/footer-wrapper"
 import { NewsProvider } from "@/app/context/news-context"
+import SmoothScroll from "@/app/components/smooth-scroll"
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
       <body className={`${montserrat.className} relative`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <NewsProvider>
+            <SmoothScroll />
             <HeaderWrapper />
             {children}
             <FooterWrapper />

@@ -191,6 +191,7 @@ export default function Header() {
       )}
 
       <div
+        data-lenis-prevent
         className={cn(
           "fixed inset-0 bg-[#0E2537] z-[10000] transition-transform duration-500 ease-in-out lg:hidden overflow-y-auto",
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full",

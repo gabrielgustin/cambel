@@ -37,7 +37,7 @@ export default function NosotrosPage() {
             {/* Image Column */}
             <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl bg-cambel-warm border-[3px] border-cambel-deep/5 p-2">
               <Image
-                src="/images/equipo-nosotros.png"
+                src="/images/equipo-cambel.jpg"
                 alt="Equipo CAMBEL - Red Jurídica"
                 width={1200}
                 height={800}

@@ -6,9 +6,6 @@ import Image from "next/image"
 export default function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
-  const [scrollY, setScrollY] = useState(0)
-  const [windowWidth, setWindowWidth] = useState(768)
-  const scrollAnimationFrameId = useRef<number | null>(null)
 
   const slides = [
     {
@@ -44,51 +41,30 @@ export default function Hero() {
     return () => clearInterval(timer)
   }, [goToNextSlide])
 
-  const handleScroll = useCallback(() => {
-    if (typeof window === "undefined") return
-    if (scrollAnimationFrameId.current) {
-      cancelAnimationFrame(scrollAnimationFrameId.current)
-    }
-    scrollAnimationFrameId.current = requestAnimationFrame(() => {
-      setScrollY(window.scrollY)
-    })
-  }, [])
-
+  // The diagonal closes over the first 80px of scroll. Written straight to the element so scrolling never re-renders React.
+  const diagonalRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    const handleResize = () => {
-      if (typeof window !== "undefined") {
-        setWindowWidth(window.innerWidth)
-      }
+    let frame = 0
+    const update = () => {
+      frame = 0
+      const el = diagonalRef.current
+      if (!el) return
+      const start = window.innerWidth < 768 ? 90 : 80
+      const top = start + (100 - start) * Math.min(window.scrollY / 80, 1)
+      el.style.clipPath = `polygon(0% ${top}%, 50% 100%, 100% ${top}%, 100% 100%, 0% 100%)`
     }
-
-    if (typeof window !== "undefined") {
-      setWindowWidth(window.innerWidth)
-      window.addEventListener("scroll", handleScroll)
-      window.addEventListener("resize", handleResize)
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update)
     }
-
+    update()
+    window.addEventListener("scroll", schedule, { passive: true })
+    window.addEventListener("resize", schedule)
     return () => {
-      if (typeof window !== "undefined") {
-        window.removeEventListener("scroll", handleScroll)
-        window.removeEventListener("resize", handleResize)
-      }
-      if (scrollAnimationFrameId.current) {
-        cancelAnimationFrame(scrollAnimationFrameId.current)
-      }
+      window.removeEventListener("scroll", schedule)
+      window.removeEventListener("resize", schedule)
+      cancelAnimationFrame(frame)
     }
-  }, [handleScroll])
-
-  const getClipPathAnimation = () => {
-    const navbarHeight = 80
-    const scrollProgress = Math.min(scrollY / navbarHeight, 1)
-    const initialDiagonalTopPercentage = windowWidth < 768 ? 90 : 80
-    const currentTopPercentage = initialDiagonalTopPercentage + (100 - initialDiagonalTopPercentage) * scrollProgress
-
-    return {
-      clipPath: `polygon(0% ${currentTopPercentage}%, 50% 100%, 100% ${currentTopPercentage}%, 100% 100%, 0% 100%)`,
-      transition: "clip-path 0.2s ease-out",
-    }
-  }
+  }, [])
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden hero-section">
@@ -139,7 +115,7 @@ export default function Hero() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="#about" className="btn-primary">
+              <a href="#nosotros" className="btn-primary">
                 Conocer más
               </a>
               <a href="#contacto" className="btn-secondary">
@@ -151,12 +127,7 @@ export default function Hero() {
       </div>
 
       {/* Diagonal Cut Effect */}
-      <div
-        className="absolute inset-0 w-full h-full bg-cambel-warm z-40"
-        style={{
-          ...getClipPathAnimation(),
-        }}
-      ></div>
+      <div ref={diagonalRef} className="absolute inset-0 w-full h-full bg-cambel-warm z-40 will-change-[clip-path]"></div>
     </section>
   )
 }

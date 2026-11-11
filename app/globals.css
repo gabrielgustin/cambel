@@ -136,9 +136,14 @@
   }
 }
 
-/* Smooth scrolling */
-html {
+/* Smooth scrolling: Lenis handles it (app/components/smooth-scroll.tsx); this is the fallback for reduced motion and /admin */
+html:not(.lenis) {
   scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html:not(.lenis) {
+    scroll-behavior: auto;
+  }
 }
 
 /* Line clamp utilities */
