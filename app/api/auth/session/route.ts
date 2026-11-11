@@ -1,11 +1,12 @@
 import { sql } from "@vercel/postgres"
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
+import { verifySession } from "@/lib/session"
 
 export async function GET(request: NextRequest) {
   try {
     const cookieStore = await cookies()
-    const userId = cookieStore.get("user_id")?.value
+    const userId = verifySession(cookieStore.get("user_id")?.value)
 
     if (!userId) {
       return NextResponse.json({ authenticated: false }, { status: 401 })
@@ -13,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch user info from database
     const result = await sql`
-      SELECT id, email, name FROM users WHERE id = ${parseInt(userId)}
+      SELECT id, email, name FROM users WHERE id = ${userId}
     `
 
     if (result.rows.length === 0) {

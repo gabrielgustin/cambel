@@ -1,6 +1,7 @@
 import { sql } from "@vercel/postgres"
 import { hash, compare } from "bcryptjs"
 import { NextRequest, NextResponse } from "next/server"
+import { signSession } from "@/lib/session"
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,14 +16,14 @@ export async function POST(request: NextRequest) {
     `
 
     if (result.rows.length === 0) {
-      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 401 })
+      return NextResponse.json({ error: "Email o contraseña incorrectos" }, { status: 401 })
     }
 
     const user = result.rows[0]
     const passwordMatch = await compare(password, user.password_hash)
 
     if (!passwordMatch) {
-      return NextResponse.json({ error: "Contraseña incorrecta" }, { status: 401 })
+      return NextResponse.json({ error: "Email o contraseña incorrectos" }, { status: 401 })
     }
 
     // Create session (you might want to use JWT or similar)
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
     )
 
     // Set session cookie (adjust based on your auth strategy)
-    response.cookies.set("user_id", String(user.id), {
+    response.cookies.set("user_id", signSession(user.id), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

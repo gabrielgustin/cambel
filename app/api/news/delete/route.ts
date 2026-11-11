@@ -1,11 +1,12 @@
 import { sql } from "@vercel/postgres"
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
+import { verifySession } from "@/lib/session"
 
 export async function DELETE(request: NextRequest) {
   try {
     const cookieStore = await cookies()
-    const userId = cookieStore.get("user_id")?.value
+    const userId = verifySession(cookieStore.get("user_id")?.value)
 
     if (!userId) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 })
@@ -20,7 +21,7 @@ export async function DELETE(request: NextRequest) {
 
     const result = await sql`
       DELETE FROM news_articles
-      WHERE id = ${parseInt(articleId)} AND author_id = ${parseInt(userId)}
+      WHERE id = ${parseInt(articleId)} AND author_id = ${userId}
       RETURNING id
     `
 

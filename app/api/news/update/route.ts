@@ -1,11 +1,12 @@
 import { sql } from "@vercel/postgres"
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
+import { verifySession } from "@/lib/session"
 
 export async function PATCH(request: NextRequest) {
   try {
     const cookieStore = await cookies()
-    const userId = cookieStore.get("user_id")?.value
+    const userId = verifySession(cookieStore.get("user_id")?.value)
 
     if (!userId) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 })
@@ -35,7 +36,7 @@ export async function PATCH(request: NextRequest) {
         type = COALESCE(${type}, type),
         category = COALESCE(${category}, category),
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = ${parseInt(id)} AND author_id = ${parseInt(userId)}
+      WHERE id = ${parseInt(id)} AND author_id = ${userId}
       RETURNING id, title, content, description, image_url, type, category, author_id, created_at, updated_at
     `
 
