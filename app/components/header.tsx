@@ -87,9 +87,9 @@ export default function Header() {
           "fixed top-0 w-full z-[9998] transition-all duration-300",
           pathname === "/"
             ? isScrolled
-              ? "bg-cambel-deep/95 backdrop-blur-md shadow-lg"
+              ? "bg-cambel-deep shadow-lg"
               : "bg-transparent"
-            : "bg-cambel-deep/95 backdrop-blur-md shadow-lg",
+            : "bg-cambel-deep shadow-lg",
         )}
       >
         <div className="container mx-auto px-4">

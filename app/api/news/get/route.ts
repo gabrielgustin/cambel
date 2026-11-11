@@ -11,7 +11,13 @@ export async function GET() {
         title,
         content,
         description,
-        image_url,
+        -- Images stored inline as base64 are served by /api/news/image/[id] so this list stays a few KB.
+        -- ?v= changes when the article is edited, so the image URL can be cached forever.
+        CASE
+          WHEN image_url LIKE 'data:%'
+            THEN '/api/news/image/' || id || '?v=' || FLOOR(EXTRACT(EPOCH FROM COALESCE(updated_at, created_at)))::bigint
+          ELSE image_url
+        END AS image_url,
         type,
         category,
         created_at

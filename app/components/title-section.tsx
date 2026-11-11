@@ -13,21 +13,21 @@ export default function TitleSection() {
           Profesionales
         </h2>
         
-        <div data-reveal-stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 max-w-7xl mx-auto">
+        <div data-reveal-stagger className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8 max-w-[1440px] mx-auto">
           {lawyers.map((lawyer) => (
-            <Card data-reveal key={lawyer.id} className="overflow-hidden bg-[#F3F0E9] border border-cambel-deep/10 rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 group">
-              <CardContent className="p-4 lg:p-5 h-full flex flex-col bg-transparent">
-                <div data-reveal="photo" className="relative w-full aspect-[3/4] rounded-lg overflow-hidden mb-5">
+            <Card data-reveal key={lawyer.id} className="overflow-hidden bg-[#F3F0E9] border border-cambel-deep/10 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <CardContent className="p-0 h-full flex flex-col bg-transparent">
+                <div data-reveal="photo" className="relative w-full aspect-[4/5] overflow-hidden">
                   <Image
                     src={lawyer.image || "/placeholder.svg"}
                     alt={lawyer.name}
                     fill
                     className="object-cover object-top group-hover:scale-[1.06] transition-transform duration-700 ease-out"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 360px"
                   />
                 </div>
-                <div className="flex flex-col items-start flex-grow">
-                  <h3 className="text-xl lg:text-2xl font-sans font-semibold text-cambel-deep mb-1">
+                <div className="flex flex-col items-start flex-grow p-5 lg:p-6">
+                  <h3 className="text-2xl font-sans font-semibold text-cambel-deep mb-1">
                     {lawyer.name}
                   </h3>
                   <span

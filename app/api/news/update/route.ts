@@ -22,7 +22,8 @@ export async function PATCH(request: NextRequest) {
     const title = body.title ?? null
     const content = body.content ?? null
     const description = body.description ?? null
-    const imageUrl = body.imageUrl ?? null
+    // The list hands out /api/news/image/... URLs; sending one back means "unchanged", never store it over the real image.
+    const imageUrl = typeof body.imageUrl === "string" && !body.imageUrl.startsWith("/api/news/image/") ? body.imageUrl : null
     const type = body.type ?? null
     const category = body.category ?? null
 
