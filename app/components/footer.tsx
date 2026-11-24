@@ -88,7 +88,7 @@ export default function Footer() {
             © {new Date().getFullYear()} CAMBEL. Todos los derechos reservados.
           </p>
           <div className="mt-4 flex items-center justify-center gap-2">
-            <span className="text-cambel-warm/50 text-xs">Created by</span>
+            <span className="text-cambel-warm/50 text-xs">Desarrollado por</span>
             <a
               href="https://www.autogestiva.com.ar"
               target="_blank"
@@ -96,13 +96,7 @@ export default function Footer() {
               className="opacity-80 hover:opacity-100 transition-opacity"
               aria-label="Autogestiva"
             >
-              <Image
-                src="/images/autogestiva-logo.png"
-                alt="Autogestiva"
-                width={240}
-                height={72}
-                className="h-12 w-auto brightness-125"
-              />
+              <svg viewBox="0 0 40 42" className="h-[1.3em] w-auto" role="img" aria-label="Autogestiva"><path d="M0 40 L15.5 0 H24.5 L40 40 H30.5 L20 13 L9.5 40 Z" fill="currentColor" /><path transform="translate(-4.4 -6) scale(1.2)" d="M19 22 V37.5 l3.9-3.7 2.9 6 2.8-1.4-2.9-5.9 h5.3z" fill="#f97316" /></svg>
             </a>
           </div>
         </div>
